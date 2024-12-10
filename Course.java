@@ -1,85 +1,65 @@
-package utils;
+package oopprojectdraft;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import enums.*;
-import users.Student;
-import utils.*;
-import java.io.Serializable;
-import java.util.*;
-import database.Database;
+public class Course {
+    private String name;
+    private String code;
+    private Teacher teacher;
+    private List<Student> enrolledStudents;
+    private Map<Student, Mark> studentMarks;
 
-public class Course extends CourseBase implements Serializable, Comparable<CourseBase>{
-    private Vector<Lesson> lessons = new Vector<Lesson>();
-    private Period period;
-    private int year;
-    private HashMap<Student, GradeBook> gradeBook = new HashMap<Student,GradeBook>();
-    private int studentLimit;
-
-
-    public Course() {
-
-    }
-    public Course(String code, String name, int ects, HashMap<School, CourseType> courseType, int limit) {
-        super(code, name, ects, courseType);
-        this.studentLimit=limit;
-        this.period=Database.DATA.getPeriod();
-        this.year=Database.DATA.getYear();
+    public Course(String name, String code, Teacher teacher) {
+        this.name = name;
+        this.code = code;
+        this.teacher = teacher;
+        this.enrolledStudents = new ArrayList<>();
+        this.studentMarks = new HashMap<>();
     }
 
-    public Vector<Lesson> getLessons() {
-        return lessons;
+    public String getName() {
+        return name;
     }
 
-    public void setLessons(Vector<Lesson> lessons){
-        this.lessons = lessons;
+    public String getCode() {
+        return code;
     }
 
-    public Period getPeriod() {
-        return period;
+    public Teacher getTeacher() {
+        return teacher;
     }
 
-    public void setPeriod(Period period) {
-        this.period = period;
-    }
-
-    public int getYear() {
-        return year;
-    }
-
-    public void setYear(int year) {
-        this.year = year;
-    }
-
-    public HashMap<Student, GradeBook> getGradeBook() {
-        return gradeBook;
-    }
-
-    public void setGradeBook(HashMap<Student, GradeBook> gradeBook) {
-        this.gradeBook = gradeBook;
-    }
-
-    public int getStudentLimit() {
-        return studentLimit;
-    }
-
-    public void setStudentLimit(int studentLimit) {
-        this.studentLimit = studentLimit;
-    }
-
-    public Vector<Student> getEnrolledStudents(){
-        Vector<Student> students = new Vector<Student>();
-        students.addAll(gradeBook.keySet());
-        return students;
-    }
-
-    public int compareTo(CourseBase o) {
-        if(o instanceof Course) {
-            Course c = (Course)o;
-            if(year==c.getYear()) {
-                return -period.compareTo(c.getPeriod());
-            }
-            return -Integer.compare(year, c.getYear());
+    public void enrollStudent(Student student) {
+        if (!enrolledStudents.contains(student)) {
+            enrolledStudents.add(student);
         }
-        return super.compareTo(o);
+    }
+
+    public void setMark(Student student, double value) {
+        if (enrolledStudents.contains(student)) {
+            Mark mark = studentMarks.get(student);
+            if (mark == null) {
+                mark = new Mark(this, student, value);
+                studentMarks.put(student, mark);
+            } else {
+                mark.setValue(value);
+            }
+        }
+    }
+
+    public Mark getStudentMark(Student student) {
+        return studentMarks.get(student);
+    }
+
+    public List<Student> getEnrolledStudents() {
+        return new ArrayList<>(enrolledStudents);
+    }
+
+    @Override
+    public String toString() {
+        return name + " (" + code + ")";
     }
 }
